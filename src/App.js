@@ -5,8 +5,6 @@ import Pagination from "./Pagination";
 
 function App() {
   const [pokemon, setPokemon] = useState([]);
-  const [pokemonL, setPokemonL] = useState([]);
-  const [savePokemonL, setSavedPokemonL] = useState([]);
   const [currentPageUrl, SetCurrentPageUrl] = useState(
     "https://pokeapi.co/api/v2/pokemon"
   );
@@ -25,24 +23,22 @@ function App() {
         setLoading(false);
         setNextPageUrl(res.data.next);
         setPrevPageUrl(res.data.previous);
-        setPokemon(res.data.results.map((p) => p.name));
-        setPokemonL(res.data.results.map((p)=>p.url))
+        getPokemon(res.data.results)
       })
     return () => cancel();
 
   }, [currentPageUrl]);
 
- 
-  useEffect(()=>{
-    for (let i = 0; i < pokemon.length; i++) {
-      axios.all("https://pokeapi.co/api/v2/pokemon/"+pokemon[i])
-      .then(r=>{
-        setPokemonL(r)
+  const getPokemon=async(res) => {
+    res.map(async(item)=>{
+      const result = await axios.get(item.url)
+      setPokemon(state =>{
+        state=[...state,result.data]
+        return state;
       })
-    }
-  })
-  console.log(pokemonL);
-
+    })
+  }
+  console.log(pokemon);
   function goToNextPage() {
     SetCurrentPageUrl(nextPageUrl);
   }
